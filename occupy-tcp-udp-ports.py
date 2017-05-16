@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import signal
 import socket
 import time
 
@@ -51,24 +52,34 @@ def get_ports():
     ports = eval(args.custmized_ports)
   return ports
 
+def release_ports(bindings):
+  for s in bindings:
+    try:
+      s.close()
+    except:
+      print 'fail to close %s' % s
+
+global_bindings = None
+def signal_handler():
+  release_ports(global_bindings)
+
 def main(ports):
   print 'These ports(both tcp & udp) will be occupied:', ports
   bindings, fail_ports = occupy_ports(ports)
   print_fail_ports(fail_ports)
   print 'Done.'
 
+  global_bindings = bindings
+  signal.signal(signal.SIGTERM, signal_handler)
+
   # Pause program
   # Plan A, Wait for user input
   # raw_input()
   # Plan B, sleep 60 seconds
-  try:
-    time.sleep(60)
-  except:
-    for s in bindings:
-      try:
-        s.close()
-      except:
-        print 'fail to close %s' % s
+  # time.sleep(60)
+  # Plan C, Cause the process to sleep until a signal is received; the appropriate handler will then be called.
+  # Refer https://docs.python.org/2/library/signal.html#signal.pause
+  signal.pause()
 
 if __name__ == "__main__":
   ports = get_ports()
