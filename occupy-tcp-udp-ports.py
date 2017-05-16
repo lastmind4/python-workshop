@@ -59,9 +59,16 @@ def main(ports):
 
   # Pause program
   # Plan A, Wait for user input
-  raw_input()
-  # Plan B, sleep 3600 seconds
-  # time.sleep(3600)
+  # raw_input()
+  # Plan B, sleep 60 seconds
+  try:
+    time.sleep(60)
+  except:
+    for s in bindings:
+      try:
+        s.close()
+      except:
+        print 'fail to close %s' % s
 
 if __name__ == "__main__":
   ports = get_ports()
