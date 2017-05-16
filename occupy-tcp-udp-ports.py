@@ -2,6 +2,7 @@
 import argparse
 import signal
 import socket
+import sys
 import time
 
 def occupy_ports(ports):
@@ -57,11 +58,11 @@ def release_ports(bindings):
     try:
       s.close()
     except:
-      print 'fail to close %s' % s
+      pass
 
-global_bindings = None
-def signal_handler():
-  release_ports(global_bindings)
+def release_ports_and_exit(bindings):
+  release_ports(bindings)
+  sys.exit(0)
 
 def main(ports):
   print 'These ports(both tcp & udp) will be occupied:', ports
@@ -69,15 +70,10 @@ def main(ports):
   print_fail_ports(fail_ports)
   print 'Done.'
 
-  global_bindings = bindings
-  signal.signal(signal.SIGTERM, signal_handler)
+  signal.signal(signal.SIGTERM, lambda _1, _2: release_ports_and_exit(bindings))
 
-  # Pause program
-  # Plan A, Wait for user input
-  # raw_input()
-  # Plan B, sleep 60 seconds
-  # time.sleep(60)
-  # Plan C, Cause the process to sleep until a signal is received; the appropriate handler will then be called.
+  # Cause the process to sleep until a signal is received;
+  # the appropriate handler will then be called.
   # Refer https://docs.python.org/2/library/signal.html#signal.pause
   signal.pause()
 
