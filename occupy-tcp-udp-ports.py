@@ -3,13 +3,11 @@ import argparse
 import signal
 import socket
 import sys
-import time
 
 def occupy_ports(ports):
   bindings = []
   fail_ports = []
 
-  # Occupy port range from 2000 to 2999
   for port in ports:
     try:
       tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
